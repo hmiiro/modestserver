@@ -3,7 +3,7 @@ import { Repository, EntityRepository } from 'typeorm';
 import { Product } from './product.entity';
 import { CreateProductDto } from './dto/createProduct.dto';
 import { GetProductsFilterDto } from './dto/getProductsFilter.dto';
-import { ProductCategory } from '../products/productStatus.enum';
+import { ProductCategory } from './productCategory.enum';
 
 @EntityRepository(Product)
 export class ProductRepository extends Repository<Product> {

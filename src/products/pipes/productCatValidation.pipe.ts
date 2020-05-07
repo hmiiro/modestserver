@@ -1,5 +1,5 @@
 import { PipeTransform, BadRequestException } from '@nestjs/common';
-import { ProductCategory } from '../productStatus.enum';
+import { ProductCategory } from '../productCategory.enum';
 
 export class ProductCategoryValidationPipe implements PipeTransform {
   readonly allowedCategories = [

@@ -10,15 +10,18 @@ import {
   UsePipes,
   ValidationPipe,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ProductsService } from './products.service';
-import { ProductCategory } from './productStatus.enum';
+import { ProductCategory } from './productCategory.enum';
 import { CreateProductDto } from './dto/createProduct.dto';
 import { GetProductsFilterDto } from './dto/getProductsFilter.dto';
 import { ProductCategoryValidationPipe } from './pipes/productCatValidation.pipe';
 import { Product } from './product.entity';
 
 @Controller('products')
+@UseGuards(AuthGuard())
 export class ProductsController {
   constructor(private productsService: ProductsService) {}
   //#region *********PRODUCTS***************

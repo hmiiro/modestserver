@@ -1,4 +1,4 @@
-import { ProductCategory } from '../productStatus.enum';
+import { ProductCategory } from '../productCategory.enum';
 
 export class UpdateProductDto {
   name?: string;

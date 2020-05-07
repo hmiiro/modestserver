@@ -1,6 +1,6 @@
 import { BaseEntity, Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-import { ProductCategory } from './productStatus.enum';
+import { ProductCategory } from './productCategory.enum';
 
 @Entity('products')
 export class Product extends BaseEntity {
