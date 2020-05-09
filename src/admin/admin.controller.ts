@@ -5,10 +5,17 @@ import {
   Body,
   Post,
   UseGuards,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
 } from '@nestjs/common';
-import { CreateUserActionDto } from './dto/admin.dto';
+import { CreateUserActionDto, CreateRoleDto } from './dto/admin.dto';
 import { AdminService } from './admin.service';
 import { AuthGuard } from '@nestjs/passport';
+import { User } from 'src/auth/user.entity';
+import { Action } from '../admin/action.entity';
+import { UpdateUserDto, UpdateMeDto } from 'src/auth/dto/auth.dto';
 
 @Controller('admin')
 @UseGuards(AuthGuard())
@@ -16,18 +23,57 @@ export class AdminController {
   constructor(private adminService: AdminService) {}
 
   //#region *********ROLES AND ACTIONS***************
-  //TODO: Fix access with auth for all
 
   // @desc Create User Role
-  // @route POST /auth/action
-  // @access Public
+  // @route POST /admin/actions
+  // @access Private
   @Post('/actions')
   @UsePipes(ValidationPipe)
-  createUserAction(
-    @Body() userActionDto: CreateUserActionDto,
-  ): Promise<string> {
+  createAction(@Body() userActionDto: CreateUserActionDto): Promise<string> {
     return this.adminService.createUserAction(userActionDto);
   }
 
+  @Get('/actions')
+  getActions(): Promise<Action[]> {
+    return this.adminService.getActions();
+  }
+
+  // @desc Create User Role
+  // @route POST /admin/roles
+  // @access Private
+  @Post('/roles')
+  @UsePipes(ValidationPipe)
+  createRole(@Body() roleDto: CreateRoleDto): Promise<string> {
+    return this.adminService.createRole(roleDto);
+  }
+
+  //#endregion
+
+  //#region *********MANAGING USERS***************
+  @Get('/users')
+  getUsers(): Promise<User[]> {
+    return this.adminService.getUsers();
+  }
+
+  @Get('/users/:id')
+  getUserById(@Param('id', ParseIntPipe) id: number): Promise<User> {
+    return this.adminService.getUserById(id);
+  }
+
+  // @desc Update a user by Admin
+  // @route PATCH /admin/users/:id
+  // @access by ADMIN
+  @Patch('/users/:id')
+  @UsePipes(ValidationPipe)
+  updateUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<void> {
+    return this.adminService.updateUser(id, updateUserDto);
+  }
+
+  @Patch('/users/:id/me')
+  @UsePipes(ValidationPipe)
+  updateMe(@Param('id', ParseIntPipe) id: number, updateMeDto: UpdateMeDto) {}
   //#endregion
 }

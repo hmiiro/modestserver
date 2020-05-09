@@ -3,26 +3,26 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
   Unique,
   ManyToMany,
-  JoinTable,
 } from 'typeorm';
 import { User } from '../auth/user.entity';
 
-@Entity('useractions')
-@Unique(['action'])
-export class UserAction extends BaseEntity {
+@Entity('actions')
+@Unique(['name'])
+export class Action extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  action: string;
+  name: string;
 
   @Column()
   group: string;
 
-  @ManyToMany(type => User)
-  @JoinTable()
+  @ManyToMany(
+    () => User,
+    (user: User) => user.actions,
+  )
   users: User[];
 }

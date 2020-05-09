@@ -19,6 +19,8 @@ import { CreateProductDto } from './dto/createProduct.dto';
 import { GetProductsFilterDto } from './dto/getProductsFilter.dto';
 import { ProductCategoryValidationPipe } from './pipes/productCatValidation.pipe';
 import { Product } from './product.entity';
+import { GetUser } from 'src/auth/getUser.decorator';
+import { User } from 'src/auth/user.entity';
 
 @Controller('products')
 @UseGuards(AuthGuard())
@@ -32,8 +34,12 @@ export class ProductsController {
   // @access Public
   @Post()
   @UsePipes(ValidationPipe)
-  createProduct(@Body() createProductDto: CreateProductDto) {
-    return this.productsService.createProduct(createProductDto);
+  createProduct(
+    @Body() createProductDto: CreateProductDto,
+    @GetUser() user: User,
+  ) {
+    console.log(user);
+    return this.productsService.createProduct(createProductDto, user);
   }
 
   // @desc Gets all products with or without filters
