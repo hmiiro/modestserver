@@ -5,12 +5,7 @@ import {
   MaxLength,
   Matches,
   IsEmail,
-  IsOptional,
-  IsArray,
 } from 'class-validator';
-import { Role } from 'src/admin/role.entity';
-import { Status } from 'src/utils/status.enum';
-import { Action } from 'src/admin/action.entity';
 
 export class RegisterDto {
   @IsNotEmpty()
@@ -58,51 +53,4 @@ export class LoginDto {
     },
   )
   password: string;
-}
-
-export class UpdateMeDto {
-  @IsNotEmpty()
-  @IsString()
-  @MinLength(4)
-  @MaxLength(20)
-  firstname: string;
-
-  @IsNotEmpty()
-  @IsString()
-  @MinLength(4)
-  @MaxLength(20)
-  lastname: string;
-
-  @IsEmail()
-  @IsNotEmpty()
-  email: string;
-}
-
-//export type UpdateUserDto = Partial<RegisterDto>;
-export class UpdateUserDto {
-  @IsOptional()
-  @IsString()
-  @MinLength(4)
-  @MaxLength(20)
-  firstname: string;
-
-  @IsOptional()
-  @IsString()
-  @MinLength(4)
-  @MaxLength(20)
-  lastname: string;
-
-  @IsEmail()
-  @IsOptional()
-  email: string;
-
-  @IsOptional()
-  role: Role;
-
-  @IsOptional()
-  status: Status;
-
-  @IsOptional()
-  @IsArray()
-  actions: Action[];
 }

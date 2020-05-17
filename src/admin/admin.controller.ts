@@ -10,12 +10,15 @@ import {
   ParseIntPipe,
   Patch,
 } from '@nestjs/common';
-import { CreateUserActionDto, CreateRoleDto } from './dto/admin.dto';
+import {
+  CreateUserActionDto,
+  CreateRoleDto,
+} from './dto/actions-and-roles.dto';
 import { AdminService } from './admin.service';
 import { AuthGuard } from '@nestjs/passport';
-import { User } from 'src/auth/user.entity';
+import { User } from '../auth/user.entity';
 import { Action } from '../admin/action.entity';
-import { UpdateUserDto, UpdateMeDto } from 'src/auth/dto/auth.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('admin')
 @UseGuards(AuthGuard())
@@ -68,12 +71,9 @@ export class AdminController {
   updateUser(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
-  ): Promise<void> {
+  ): Promise<User> {
     return this.adminService.updateUser(id, updateUserDto);
   }
 
-  @Patch('/users/:id/me')
-  @UsePipes(ValidationPipe)
-  updateMe(@Param('id', ParseIntPipe) id: number, updateMeDto: UpdateMeDto) {}
   //#endregion
 }

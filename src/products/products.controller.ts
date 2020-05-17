@@ -19,7 +19,7 @@ import { CreateProductDto } from './dto/createProduct.dto';
 import { GetProductsFilterDto } from './dto/getProductsFilter.dto';
 import { ProductCategoryValidationPipe } from './pipes/productCatValidation.pipe';
 import { Product } from './product.entity';
-import { GetUser } from 'src/auth/getUser.decorator';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { User } from 'src/auth/user.entity';
 
 @Controller('products')

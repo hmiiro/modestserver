@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsString } from 'class-validator';
-import { ActionGroup } from '../rolesAndActions/Actions.enum';
+import { ActionGroup } from '../enums/actions.enum';
 export class CreateUserActionDto {
   @IsString()
   @IsNotEmpty()

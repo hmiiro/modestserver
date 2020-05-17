@@ -5,14 +5,19 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 
 import { Action } from './action.entity';
-import { CreateUserActionDto, CreateRoleDto } from './dto/admin.dto';
+import {
+  CreateUserActionDto,
+  CreateRoleDto,
+} from './dto/actions-and-roles.dto';
 import { User } from 'src/auth/user.entity';
 import { Role } from './role.entity';
-import { InjectRepository } from '@nestjs/typeorm';
 import { UserRepository } from 'src/auth/user.repository';
-import { UpdateUserDto, UpdateMeDto } from 'src/auth/dto/auth.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { In } from 'typeorm';
+
 @Injectable()
 export class AdminService {
   constructor(
@@ -23,11 +28,13 @@ export class AdminService {
   // @desc Gets all users
   // @access ADMIN
   async getUsers(): Promise<User[]> {
-    const users = await this.userRepository.find();
+    const users = await this.userRepository.find({
+      //relations: ['userActions'],
+    });
     // remove password and salt details from user details
     users.map(user => {
       delete user.password, delete user.salt;
-      delete user.role.id;
+      //delete user.role;
     });
     return users;
   }
@@ -35,51 +42,70 @@ export class AdminService {
   // @desc Gets user by id
   // @access ADMIN
   async getUserById(id: number): Promise<User> {
-    const user = await User.findOne(id);
-    delete user.password;
-    delete user.salt;
-    delete user.role.id;
+    const user = await this.userRepository.findOne(id);
+    //console.log(user);
     if (!user) {
       throw new NotFoundException(`Oops! User with ID:${id} not found`);
     }
+    delete user.password;
+    delete user.salt;
     return user;
   }
 
-  // // @desc User Self-Updating
-  // // @access user
-  async updateMe(id: number, updateMe: UpdateMeDto): Promise<User> {
-    const user = await User.findOne(id);
-
-    await user.save();
-    return user;
-  }
-
-  // // @desc Update a user by Admin
-  // // @access ADMIN
-  // async updateUser(id: number, updateUser: UpdateUserDto): Promise<void> {
-  //   await this.userRepository.update(id, updateUser);
-  //   const updatedUser = await this.userRepository.findOne(id);
-  //   console.log(updatedUser);
-  // }
-  async updateUser(id: number, updateUser: UpdateUserDto): Promise<void> {
+  // @desc Updates user by id
+  // @access ADMIN
+  async updateUser(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    const { firstname, lastname, email, role, status, actions } = updateUserDto;
     const user = await this.getUserById(id);
-    console.log(user);
-    const { firstname, lastname, email, role, status, actions } = updateUser;
+    // gets and checks assigned User actions if they exisit from db
+    const assignedUserActions = await this.getAssignedActions(actions);
+
+    // if (firstname) {
+    //   user.firstname = firstname;
+    // }
+
+    // if (lastname) {
+    //   user.lastname = lastname;
+    // }
+    // if (email) {
+    //   user.email = email;
+    // }
+    // if (role) {
+    //   user.role = role;
+    // }
+    // if (status) {
+
+    //   user.status = status;
+    // }
+    // if (actions) {
+    //   console.log(user.actions)
+    //   user.actions = assignedUserActions;
+    // }
+
     user.firstname = firstname;
+
     user.lastname = lastname;
+
     user.email = email;
+
     user.role = role;
+
     user.status = status;
-    user.actions = actions;
+
+    // checks for and returns the new actions to update to avoid error of duplicates
+    const res = assignedUserActions.filter(
+      ({ name: id1 }) => !user.actions.some(({ name: id2 }) => id2 === id1),
+    );
+
+    user.actions = assignedUserActions;
+
     try {
       await user.save();
-      console.log(user);
-      //return `User ${user.firstname} ${user.lastname} registered successfuly`;
     } catch (error) {
       console.log(error);
       throw new InternalServerErrorException(`Error Updating Selected User`);
     }
-    //return user;
+    return user;
   }
   //#endregion
 
@@ -129,14 +155,36 @@ export class AdminService {
     }
   }
 
-  // @desc Gets all users
+  // @desc Gets all actions
   // @access ADMIN
   async getActions(): Promise<Action[]> {
+    const actions = await Action.find();
+
+    return actions;
+  }
+  // @desc Gets all actions with related users
+  // @access ADMIN
+  async getActionsWithUsers(): Promise<Action[]> {
     const actions = await Action.find({ relations: ['users'] });
 
     return actions;
   }
 
+  // @desc Gets all actions user has provided
+  // @access ADMIN
+  private async getAssignedActions(actions: [string]): Promise<Action[]> {
+    const assignedActions = await Action.find({
+      where: {
+        /*
+          Other roles like customer and supplier cant be assigned
+          to internal user hence not considered
+          */
+        name: In(actions),
+      },
+    });
+
+    return assignedActions;
+  }
   // @desc Gets all Roles
   // @access ADMIN
   async getRoles(): Promise<Role[]> {

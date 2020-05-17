@@ -22,7 +22,7 @@ export class UserRepository extends Repository<User> {
     user.email = email;
     user.salt = await bcrypt.genSalt();
     user.password = await this.hashPassword(password, user.salt);
-    user.role = role;
+    user.role = role ? role.name : 'USER';
 
     try {
       await user.save();

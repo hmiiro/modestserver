@@ -1,14 +1,9 @@
-import {
-  Injectable,
-  UnauthorizedException,
-  ConflictException,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserRepository } from './user.repository';
 import { RegisterDto, LoginDto } from './dto/auth.dto';
-import { JwtPayload } from './jwtPayload.interface';
+import { JwtPayload } from './jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
@@ -32,7 +27,7 @@ export class AuthService {
     const email = user.email;
     const name = `${user.firstname} ${user.lastname}`;
     const role = user.role;
-    const payload: JwtPayload = { name, email };
+    const payload: JwtPayload = { name, email, role };
     const accessToken = await this.jwtService.sign(payload);
 
     return { accessToken };

@@ -7,11 +7,11 @@ import {
   ManyToMany,
   ManyToOne,
   JoinTable,
+  OneToMany,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { Action } from '../admin/action.entity';
-import { Role } from '../admin/role.entity';
-import { Status } from 'src/utils/status.enum';
+import { Status } from '../utils/status.enum';
+import { Action } from 'src/admin/action.entity';
 
 @Entity('users')
 @Unique(['email'])
@@ -34,15 +34,8 @@ export class User extends BaseEntity {
   @Column()
   salt: string;
 
-  @ManyToOne(
-    () => Role,
-    (role: Role) => role.users,
-    {
-      cascade: true,
-      eager: true,
-    },
-  )
-  role: Role;
+  @Column()
+  role: string;
 
   @Column({
     default: Status.INACTIVE,
@@ -52,9 +45,19 @@ export class User extends BaseEntity {
   @ManyToMany(
     () => Action,
     (action: Action) => action.users,
-    { eager: true },
+    { eager: true, cascade: ['update'] },
   )
-  @JoinTable()
+  @JoinTable({
+    name: 'users_actions',
+    joinColumn: {
+      name: 'user',
+      referencedColumnName: 'email',
+    },
+    inverseJoinColumn: {
+      name: 'action',
+      referencedColumnName: 'name',
+    },
+  })
   actions: Action[];
 
   async validatePassword(password: string): Promise<boolean> {
